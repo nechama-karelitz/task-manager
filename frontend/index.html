@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="taskManagerApp">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Manager</title>
+
+    <!-- Load AngularJS from node_modules -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <!-- Application JavaScript file -->
+    <script src="app.js"></script>
+
+    <!-- Load FontAwesome icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Load Bootstrap for design -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body ng-controller="TaskController as vm" class="container">
+    <!-- Header -->
+    <div class="text-center my-4">
+      <h1>Task Manager</h1>
+      <p class="lead">
+        Manage your tasks efficiently with categories and statuses
+      </p>
+
+      <!-- Button to open add task -->
+      <button class="btn btn-info" ng-click="vm.openAddTaskForm()" ng-if="!vm.showTaskForm">
+        <i class="fas fa-plus-circle"></i> Add Task
+      </button>
+
+
+      <!-- Button to open add category -->
+      <button
+        class="btn btn-info"
+        ng-click="vm.toggleAddCategoryForm()"
+        ng-if="!vm.showAddCategoryForm"
+      >
+        <i class="fas fa-plus-circle"></i> Add Category
+      </button>
+    </div>
+
+    <!-- Add Category Form -->
+    <div ng-show="vm.showAddCategoryForm" class="mb-4">
+      <h3>Add Category</h3>
+      <div class="row">
+        <div class="col-md-4">
+          <input
+            type="text"
+            ng-model="vm.newCategoryName"
+            class="form-control"
+            placeholder="Category Name"
+            required
+          />
+        </div>
+        <div class="col-md-4">
+          <input
+            type="text"
+            ng-model="vm.newCategoryDescription"
+            class="form-control"
+            placeholder="Category Description"
+          />
+        </div>
+        <div class="col-md-2">
+          <button ng-click="vm.addCategory()" class="btn btn-info w-100">
+            Add Category
+          </button>
+        </div>
+        <div class="col-md-2">
+          <button
+            ng-click="vm.toggleAddCategoryForm()"
+            class="btn btn-secondary w-100"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add & Edit Task Form -->
+    <div ng-show="vm.showTaskForm" class="mb-4">
+      <h3>{{ vm.editingTask ? "Edit Task" : "Add Task" }}</h3>
+      <div class="row">
+        <div class="col-md-4">
+          <input
+            type="text"
+            ng-model="vm.taskForm.title"
+            class="form-control"
+            placeholder="Task Title"
+            required
+          />
+        </div>
+        <div class="col-md-4">
+          <input type="date" ng-model="vm.taskForm.dueDate" class="form-control" placeholder="Due Date">
+      </div>
+        <div class="col-md-4">
+          <select ng-model="vm.taskForm.category._id" class="form-select">
+            <option ng-repeat="category in vm.categories" value="{{category._id}}">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-8 mt-2">
+          <textarea
+            ng-model="vm.taskForm.description"
+            class="form-control"
+            placeholder="Task Description"
+            maxlength="500"
+          ></textarea>
+          <small class="form-text text-muted">
+            Max 500 characters
+          </small>
+        </div>
+        <div class="col-md-2 mt-2">
+          <button ng-click="vm.saveTask()" class="btn btn-info w-100">
+            {{ vm.editingTask ? "Update Task" : "Add Task" }}
+          </button>
+        </div>
+        <div class="col-md-2 mt-2">
+          <button
+            ng-click="vm.cancelEdit()"
+            class="btn btn-secondary w-100"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <h4>Filter by Category</h4>
+        <select
+          ng-model="vm.selectedCategory"
+          ng-change="vm.loadTasks()"
+          class="form-select"
+        >
+          <option value="">Show All</option>
+          <option ng-repeat="category in vm.categories" value="{{category._id}}">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <h4>Filter by Status</h4>
+        <select
+          ng-model="vm.selectedStatus"
+          ng-change="vm.loadTasks()"
+          class="form-select"
+        >
+          <option value="">Show All</option>
+          <option value="Pending">Pending</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        
+        </select>
+      </div>
+    </div>
+
+    <ul class="list-group">
+      <li
+        ng-repeat="task in vm.tasks"
+        class="list-group-item d-flex justify-content-between align-items-center"
+      >
+        <div>
+          <strong>{{ task.title }}</strong>
+          <!-- Conditional Status Badge -->
+          <span
+            ng-class="{
+                    'badge bg-secondary': task.status === 'Pending',
+                    'badge bg-warning text-dark': task.status === 'In Progress',
+                    'badge bg-success': task.status === 'Completed'
+                }"
+            class="badge"
+            >{{ task.status }}</span
+          >
+
+          <span class="badge bg-info text-dark ml-2">
+            {{ task.category.name }}
+          </span>
+          <span class="mx-2 task-description" title="{{task.description}}">{{ task.description }}</span>
+          <span class="mx-2" ng-if="task.dueDate">{{ task.dueDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <div>
+          <!-- Status Update Buttons -->
+          <button
+            ng-if="task.status === 'Pending'"
+            ng-click="vm.updateStatus(task, 'In Progress')"
+            class="btn btn-warning btn-sm mx-1"
+          >
+            <i class="fas fa-cogs"></i> In Progress
+          </button>
+
+          <button
+            ng-if="task.status === 'In Progress'"
+            ng-click="vm.updateStatus(task, 'Pending')"
+            class="btn btn-secondary btn-sm mx-1"
+          >
+            <i class="fas fa-undo"></i> Reopen
+          </button>
+
+          <button
+            ng-if="task.status === 'Pending' || task.status === 'In Progress'"
+            ng-click="vm.updateStatus(task, 'Completed')"
+            class="btn btn-success btn-sm mx-1"
+          >
+            <i class="fas fa-check"></i> Complete
+          </button>
+
+          <!-- Edit button -->
+          <button ng-click="vm.editTask(task)" class="btn p-0 text-primary">
+            <i class="fas fa-edit"></i>
+          </button>
+
+          <!-- Delete button -->
+          <button ng-click="vm.deleteTask(task._id)" class="btn p-0 text-primary">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </li>
+    </ul>
+  </body>
+</html>
