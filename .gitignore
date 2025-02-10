@@ -1,0 +1,28 @@
+# Node.js
+node_modules/
+dist/
+coverage/
+.env
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Jest test files
+jest/
+*.test.ts
+*.test.js
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
