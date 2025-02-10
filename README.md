@@ -53,7 +53,7 @@ frontend/
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-repo/task-manager.git
+   git clone https://github.com/nechama-karelitz/task-manager.git
    cd task-manager
    ```
 2. Install dependencies:
